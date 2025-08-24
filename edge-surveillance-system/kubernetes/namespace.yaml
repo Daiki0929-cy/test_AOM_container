@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: edge-surveillance
+  labels:
+    name: edge-surveillance
+    purpose: event-driven-container-orchestration

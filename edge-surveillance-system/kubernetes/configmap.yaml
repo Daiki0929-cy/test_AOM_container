@@ -1,0 +1,94 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: surveillance-config
+  namespace: edge-surveillance
+data:
+  detector-config.yaml: |
+    machine_id: detector
+    initial_state: capturing
+
+    states:
+      capturing:
+        container_image: detector-capturing:latest
+        description: "Camera image capture"
+      processing:
+        container_image: detector-processing:latest
+        description: "Person detection processing"
+
+    transitions:
+      - name: image_captured
+        from_state: capturing
+        to_state: processing
+        trigger_event: ""
+        
+      - name: processing_complete
+        from_state: processing
+        to_state: capturing
+        trigger_event: ""
+        
+      - name: processing_timeout
+        from_state: processing
+        to_state: capturing
+        trigger_event: ""
+        
+      - name: person_detected
+        from_state: processing
+        to_state: capturing
+        trigger_event: ""
+
+  surveillance-config.yaml: |
+    machine_id: surveillance
+    initial_state: disarmed
+
+    states:
+      disarmed:
+        container_image: surveillance-disarmed:latest
+        description: "System disarmed state"
+      analyzing:
+        container_image: surveillance-analyzing:latest
+        description: "Threat analysis"
+      alarm:
+        container_image: surveillance-alarm:latest
+        description: "Alarm activated"
+
+    transitions:
+      - name: start_analysis
+        from_state: disarmed
+        to_state: analyzing
+        trigger_event: "foundPersons"
+        
+      - name: threat_detected
+        from_state: analyzing
+        to_state: alarm
+        trigger_event: ""
+        
+      - name: no_threat
+        from_state: analyzing
+        to_state: disarmed
+        trigger_event: ""
+        
+      - name: disarm_alarm
+        from_state: alarm
+        to_state: disarmed
+        trigger_event: "disarm_event"
+
+  transition-rules.yaml: |
+    rules:
+      - source_machine: detector
+        source_transition: person_detected
+        target_machine: surveillance
+        target_event: foundPersons
+        conditions: {}
+          
+      - source_machine: surveillance
+        source_transition: threat_detected
+        target_machine: detector
+        target_event: alarm_triggered
+        conditions: {}
+
+      - source_machine: surveillance
+        source_transition: disarm_alarm
+        target_machine: detector
+        target_event: system_disarmed
+        conditions: {}

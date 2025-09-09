@@ -1,0 +1,16 @@
+rules:
+  - source_machine: detector
+    source_transition: person_detected
+    target_machine: surveillance
+    target_event: foundPersons
+      
+  - source_machine: surveillance
+    source_transition: threat_detected
+    target_machine: detector
+    target_event: alarm_triggered
+   
+  - source_machine: surveillance
+    source_transition: disarm_alarm
+    target_machine: detector
+    target_event: system_disarmed
+   

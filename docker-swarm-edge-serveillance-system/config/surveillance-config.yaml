@@ -1,0 +1,34 @@
+machine_id: surveillance
+initial_state: disarmed
+
+states:
+  disarmed:
+    container_image: surveillance-disarmed:latest
+    description: "System disarmed state"
+  analyzing:
+    container_image: surveillance-analyzing:latest
+    description: "Threat analysis"
+  alarm:
+    container_image: surveillance-alarm:latest
+    description: "Alarm activated"
+
+transitions:
+  - name: start_analysis
+    from_state: disarmed
+    to_state: analyzing
+    trigger_event: "foundPersons"
+    
+  - name: threat_detected
+    from_state: analyzing
+    to_state: alarm
+    trigger_event: ""
+    
+  - name: no_threat
+    from_state: analyzing
+    to_state: disarmed
+    trigger_event: ""
+    
+  - name: disarm_alarm
+    from_state: alarm
+    to_state: disarmed
+    trigger_event: "disarm_event"

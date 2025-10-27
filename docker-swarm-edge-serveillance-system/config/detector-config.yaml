@@ -1,0 +1,31 @@
+machine_id: detector
+initial_state: capturing
+
+states:
+  capturing:
+    container_image: detector-capturing:latest
+    description: "Camera image capture"
+  processing:
+    container_image: detector-processing:latest
+    description: "Person detection processing"
+
+transitions:
+  - name: image_captured
+    from_state: capturing
+    to_state: processing
+    trigger_event: ""
+    
+  - name: processing_complete
+    from_state: processing
+    to_state: capturing
+    trigger_event: ""
+    
+  - name: processing_timeout
+    from_state: processing
+    to_state: capturing
+    trigger_event: ""
+    
+  - name: person_detected
+    from_state: processing
+    to_state: capturing
+    trigger_event: ""

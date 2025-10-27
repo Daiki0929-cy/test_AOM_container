@@ -1,0 +1,19 @@
+rules:
+  - source_machine: detector
+    source_transition: person_detected
+    target_machine: surveillance
+    target_event: foundPersons
+    conditions:
+      detection_confidence: ">0.7"
+      
+  - source_machine: surveillance
+    source_transition: threat_detected
+    target_machine: detector
+    target_event: alarm_triggered
+    conditions: {}
+
+  - source_machine: surveillance
+    source_transition: disarm_alarm
+    target_machine: detector
+    target_event: system_disarmed
+    conditions: {}
